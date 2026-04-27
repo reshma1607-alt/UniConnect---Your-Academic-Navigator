@@ -1,0 +1,467 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Academic Portal</title>
+
+<style>
+
+*{box-sizing:border-box;font-family:Arial}
+
+body{
+margin:0;
+text-align:center;
+background:linear-gradient(-45deg,#ff6a00,#ee0979,#00c6ff,#0072ff,#7f00ff);
+background-size:400% 400%;
+animation:bg 10s ease infinite;
+}
+
+@keyframes bg{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
+}
+
+header{
+background:#1e3c72;
+color:white;
+padding:20px;
+}
+
+.container{
+background:white;
+width:80%;
+margin:30px auto;
+padding:25px;
+border-radius:12px;
+box-shadow:0 5px 20px rgba(0,0,0,0.2);
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+margin:20px 0;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+
+input,select,button{
+padding:10px;
+margin:6px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+background:#2a5298;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+button:hover{
+background:#1e3c72;
+}
+
+.result{
+background:#eef3ff;
+padding:15px;
+border-radius:8px;
+margin-top:10px;
+}
+
+.hidden{
+display:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+<h1>🎓 Student Academic Portal</h1>
+</header>
+
+<!-- LOGIN PAGE -->
+
+<div class="container" id="loginPage">
+
+<h2>Login</h2>
+
+<input id="loginUser" placeholder="Username"><br>
+<input id="loginPass" type="password" placeholder="Password"><br>
+
+<button onclick="login()">Login</button>
+
+<h3>OR</h3>
+
+<h2>Signup</h2>
+
+<input id="signupUser" placeholder="Username"><br>
+<input id="signupPass" type="password" placeholder="Password"><br>
+
+<button onclick="signup()">Signup</button>
+
+<p id="loginMsg"></p>
+
+</div>
+
+
+<!-- MAIN WEBSITE -->
+
+<div id="mainWebsite" class="hidden">
+
+<header>
+<h1>UniConnect</h1>
+<p>Your Academic Navigator</p>
+<button onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+
+
+<!-- Academic Navigator -->
+
+<div class="card">
+
+<h2>Select Branch, Year & Subject</h2>
+
+<select id="branch" onchange="loadYears()">
+<option value="">Select Branch</option>
+<option value="CSE">CSE</option>
+<option value="ECE">ECE</option>
+<option value="EEE">EEE</option>
+<option value="MECH">Mechanical</option>
+</select>
+
+<select id="year" onchange="loadSubjects()">
+<option value="">Select Year</option>
+</select>
+
+<select id="subject">
+<option value="">Select Subject</option>
+</select>
+
+<select id="material">
+<option value="">Select Material</option>
+<option>Previous Papers</option>
+<option>Module Banks</option>
+<option>Important Questions</option>
+<option>Revision PDFs</option>
+</select>
+
+<button onclick="showMaterials()">View</button>
+
+<div id="output" class="result"></div>
+
+</div>
+
+
+<!-- Library -->
+
+<div class="card">
+
+<h2>Library Book Availability</h2>
+
+<input type="text" id="bookInput" placeholder="Enter book name">
+
+<button onclick="checkBook()">Check</button>
+
+<div id="bookResult" class="result"></div>
+
+</div>
+
+
+<!-- Projects -->
+
+<div class="card">
+
+<h2>Project Ideas</h2>
+
+<ul>
+<li>AI Chatbot</li>
+<li>Smart Attendance System</li>
+<li>IoT Home Automation</li>
+<li>Online Voting System</li>
+</ul>
+
+</div>
+
+
+<!-- Interview -->
+
+<div class="card">
+
+<h2>Interview Preparation</h2>
+
+<button onclick="showInterview('tcs')">TCS Questions</button>
+<button onclick="showInterview('infosys')">Infosys Questions</button>
+<button onclick="showInterview('wipro')">Wipro Questions</button>
+<button onclick="showInterview('hr')">HR Interview</button>
+
+<div id="interviewOutput" class="result"></div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* LOGIN SYSTEM */
+
+function signup(){
+
+let user=document.getElementById("signupUser").value
+let pass=document.getElementById("signupPass").value
+
+if(user==""||pass==""){
+document.getElementById("loginMsg").innerText="Enter username and password"
+return
+}
+
+localStorage.setItem(user,pass)
+document.getElementById("loginMsg").innerText="Signup Successful"
+
+}
+
+function login(){
+
+let user=document.getElementById("loginUser").value
+let pass=document.getElementById("loginPass").value
+
+let stored=localStorage.getItem(user)
+
+if(stored===pass){
+
+document.getElementById("loginPage").classList.add("hidden")
+document.getElementById("mainWebsite").classList.remove("hidden")
+
+}else{
+
+document.getElementById("loginMsg").innerText="Invalid Login"
+
+}
+
+}
+
+function logout(){
+location.reload()
+}
+
+
+/* SUBJECT DATA */
+
+const data={
+
+CSE:{
+1:["Programming in C","Mathematics I","Physics"],
+2:["Data Structures","Digital Logic","Discrete Math"],
+3:["DBMS","Operating Systems","Computer Networks"],
+4:["AI","Machine Learning","Cloud Computing"]
+},
+
+ECE:{
+1:["Mathematics I","Physics","Basic Electronics"],
+2:["Digital Electronics","Signals","Networks"],
+3:["Communication","VLSI","Microprocessors"],
+4:["Embedded Systems","Wireless","IoT"]
+},
+
+EEE:{
+1:["Mathematics","Physics","Basic Electrical"],
+2:["Circuits","Machines I","Electromagnetics"],
+3:["Power Systems","Control Systems","Machines II"],
+4:["Power Electronics","Drives","Renewable"]
+},
+
+MECH:{
+1:["Mathematics","Physics","Engineering Mechanics"],
+2:["Thermodynamics","Materials","Manufacturing"],
+3:["Fluid Mechanics","Machine Design","Heat Transfer"],
+4:["Automobile","CAD","Industrial"]
+}
+
+}
+
+
+/* LIBRARY DATA */
+
+const library={
+
+"data structures":{available:true,copies:3},
+"operating systems":{available:false,date:"25 Feb 2026"},
+"dbms":{available:false,date:"18 Feb 2026"},
+"computer networks":{available:true,copies:2},
+"thermodynamics":{available:false,date:"20 Feb 2026"}
+
+}
+
+
+/* LOAD YEARS */
+
+function loadYears(){
+
+let year=document.getElementById("year")
+year.innerHTML='<option value="">Select Year</option>'
+
+for(let i=1;i<=4;i++){
+
+let opt=document.createElement("option")
+opt.text=i+" Year"
+opt.value=i
+year.appendChild(opt)
+
+}
+
+}
+
+
+/* LOAD SUBJECTS */
+
+function loadSubjects(){
+
+let branch=document.getElementById("branch").value
+let year=document.getElementById("year").value
+let subject=document.getElementById("subject")
+
+subject.innerHTML='<option value="">Select Subject</option>'
+
+if(branch && year){
+
+data[branch][year].forEach(sub=>{
+
+let opt=document.createElement("option")
+opt.value=sub
+opt.textContent=sub
+subject.appendChild(opt)
+
+})
+
+}
+
+}
+
+
+/* MATERIAL DISPLAY */
+
+function showMaterials(){
+
+let b=document.getElementById("branch").value
+let y=document.getElementById("year").value
+let s=document.getElementById("subject").value
+let m=document.getElementById("material").value
+let out=document.getElementById("output")
+
+if(!b||!y||!s||!m){
+out.innerHTML="⚠ Please select branch, year, subject and material"
+return
+}
+
+out.innerHTML=
+"<b>"+b+" - "+y+" Year - "+s+"</b><br><br>"+
+"Showing: <b>"+m+"</b><br><br>"+
+"📄 Download PDF<br>"+
+"📘 View Online<br>"+
+"⭐ Important Topics<br>"+
+"⚡ Exam Focus Areas"
+
+}
+
+
+/* LIBRARY CHECK */
+
+function checkBook(){
+
+let book=document.getElementById("bookInput").value.toLowerCase().trim()
+let box=document.getElementById("bookResult")
+
+if(book===""){
+box.innerHTML="⚠ Enter book name"
+return
+}
+
+if(library[book]){
+
+if(library[book].available){
+box.innerHTML="✅ Available ("+library[book].copies+" copies)"
+}else{
+box.innerHTML="❌ Not Available<br>📅 Available on: "+library[book].date
+}
+
+}else{
+box.innerHTML="ℹ Book not found in library"
+}
+
+}
+
+
+/* INTERVIEW QUESTIONS */
+
+function showInterview(company){
+
+let box=document.getElementById("interviewOutput")
+
+if(company=="tcs"){
+
+box.innerHTML=
+"<h3>TCS Questions</h3>"+
+"<ul>"+
+"<li>What is OOP?</li>"+
+"<li>Explain polymorphism.</li>"+
+"<li>Difference between stack and queue.</li>"+
+"<li>What is DBMS?</li>"+
+"</ul>"
+
+}
+
+else if(company=="infosys"){
+
+box.innerHTML=
+"<h3>Infosys Questions</h3>"+
+"<ul>"+
+"<li>Explain SDLC.</li>"+
+"<li>What is normalization?</li>"+
+"<li>What is recursion?</li>"+
+"<li>Difference between C and Java.</li>"+
+"</ul>"
+
+}
+
+else if(company=="wipro"){
+
+box.innerHTML=
+"<h3>Wipro Questions</h3>"+
+"<ul>"+
+"<li>Write a program to reverse a string.</li>"+
+"<li>Explain linked list.</li>"+
+"<li>What is cloud computing?</li>"+
+"<li>Difference between HTTP and HTTPS.</li>"+
+"</ul>"
+
+}
+
+else if(company=="hr"){
+
+box.innerHTML=
+"<h3>HR Interview Questions</h3>"+
+"<ul>"+
+"<li>Tell me about yourself.</li>"+
+"<li>Why should we hire you?</li>"+
+"<li>What are your strengths?</li>"+
+"<li>Where do you see yourself in 5 years?</li>"+
+"</ul>"
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
+```
